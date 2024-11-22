@@ -1,5 +1,7 @@
+import { useAppContext } from '@/app/app-context'
 import { ICart } from '@/shared/types/cart'
 import { IProduct } from '@/shared/types/product'
+import { UserRole } from '@/shared/types/user'
 import { formatCurrency } from '@/shared/utils/formatCurrency'
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { Badge, Button, Card, Tooltip } from 'antd'
@@ -15,7 +17,7 @@ export default function ProductCard({
     quantity?: number,
     setCart: Dispatch<SetStateAction<ICart | undefined>>
 }) {
-
+    const appContext = useAppContext()
     const handleIncrease = () => {
         setCart((prevCart) => {
             if (!prevCart) {
@@ -115,21 +117,23 @@ export default function ProductCard({
                     description={
                         <>
                             <p className="text-gray-700 mb-4">Price: {formatCurrency(product.price)} VND</p>
-                            <div className="flex items-center justify-center space-x-2">
-                                <Button
-                                    size="small"
-                                    icon={<MinusOutlined />}
-                                    onClick={handleDecrease}
-                                    disabled={!quantity || quantity === 0}
-                                />
-                                <span className="w-6 text-center">{quantity || 0}</span>
-                                <Button
-                                    size="small"
-                                    icon={<PlusOutlined />}
-                                    onClick={handleIncrease}
-                                    disabled={!product.available}
-                                />
-                            </div>
+                            {appContext.user?.role === UserRole.ORDER_TAKER && (
+                                <div className="flex items-center justify-center space-x-2">
+                                    <Button
+                                        size="small"
+                                        icon={<MinusOutlined />}
+                                        onClick={handleDecrease}
+                                        disabled={!quantity || quantity === 0}
+                                    />
+                                    <span className="w-6 text-center">{quantity || 0}</span>
+                                    <Button
+                                        size="small"
+                                        icon={<PlusOutlined />}
+                                        onClick={handleIncrease}
+                                        disabled={!product.available}
+                                    />
+                                </div>
+                            )}
                         </>
                     }
                 />

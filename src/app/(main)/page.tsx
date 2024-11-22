@@ -7,9 +7,12 @@ import { IProduct } from "@/shared/types/product";
 import { Spin } from "antd";
 import { useState } from "react";
 import './scrollbar.css';
+import { useAppContext } from "../app-context";
+import { UserRole } from "@/shared/types/user";
 
 export default function Home() {
   const [cart, setCart] = useState<ICart | undefined>();
+  const appContext = useAppContext()
 
   const { data: products, isLoading } = useGetListProduct({
     page: 1,
@@ -42,19 +45,21 @@ export default function Home() {
                 key={product.id}
                 className="flex flex-col h-full"
               >
-                <ProductCard 
-                product={product} 
-                quantity={cart?.items.find((item: ICartItem) => item.product.id === product.id)?.quantity}
-                setCart={setCart}
+                <ProductCard
+                  product={product}
+                  quantity={cart?.items.find((item: ICartItem) => item.product.id === product.id)?.quantity}
+                  setCart={setCart}
                 />
               </div>
             ))}
           </div>
         </div>
       </div>
-      <div className="w-80 flex-shrink-0">
-        <Cart cart={cart} setCart={setCart}/>
-      </div>
+      {appContext.user?.role === UserRole.ORDER_TAKER && (
+        <div className="w-80 flex-shrink-0">
+          <Cart cart={cart} setCart={setCart} />
+        </div>
+      )}
     </div>
   );
 }

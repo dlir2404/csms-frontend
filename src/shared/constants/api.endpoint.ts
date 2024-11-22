@@ -20,5 +20,7 @@ export enum ApiEndpoint {
     //order
     GET_ORDERS = '/order/all',
     CREATE_ORDER = '/order',
-    CHANGE_ORDER_STATUS = '/order/status'
+    CHANGE_ORDER_STATUS = '/order/status',
+    PROCESS_ORDER = '/order/status',
+    COMPLETE_ORDER = '/order/status',
 }

@@ -9,6 +9,7 @@ import { Avatar, Layout, Menu, notification, Popover } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useAppContext } from "../app-context";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ export default function MainLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const appContext = useAppContext()
     const { data, isLoading } = useGetMe(queryClient);
     const router = useRouter()
     const pathName = usePathname()
@@ -41,6 +43,8 @@ export default function MainLayout({
             </div>
         );
     }
+
+    appContext.setUser(data)
 
     return (
         <QueryClientProvider client={queryClient}>
