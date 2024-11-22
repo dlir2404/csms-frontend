@@ -55,7 +55,7 @@ export default function MainLayout({
                         alignItems: 'center',
                     }}
                 >
-                    <div className="text-xl text-white font-bold mr-6">CSMS MANAGER</div>
+                    <div className="text-xl text-white font-bold mr-6">CSMS</div>
                     <Menu
                         theme="dark"
                         mode="horizontal"
@@ -87,7 +87,7 @@ export default function MainLayout({
                         <Avatar size="large" icon={<UserOutlined />} />
                     </Popover>
                 </Header>
-                <Content style={{ padding: '48px 48px 0', backgroundColor: '#fff' }}>
+                <Content style={{ padding: '48px 0 0 48px', backgroundColor: '#fff' }}>
                     <ProgressProvider>{children}</ProgressProvider>
                 </Content>
             </Layout>

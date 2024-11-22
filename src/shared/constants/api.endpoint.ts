@@ -1,11 +1,7 @@
 export enum ApiEndpoint {
-    LOGIN = '/auth/admin/login',
-    GET_ME = '/auth/admin/me',
+    LOGIN = '/auth/login',
+    GET_ME = '/auth/me',
 
-    //user
-    GET_USERS = '/manager/user/all',
-    CREATE_USER = '/manager/user',
-    EDIT_USER = '/manager/user',
 
     //product
     GET_PRODUCTS = '/product/all',
@@ -19,4 +15,10 @@ export enum ApiEndpoint {
     CREATE_CATEGORY = '/category',
     EDIT_CATEGORY = '/category',
     DELETE_CATEGORY = '/category',
+
+
+    //order
+    GET_ORDERS = '/order/all',
+    CREATE_ORDER = '/order',
+    CHANGE_ORDER_STATUS = '/order/status'
 }

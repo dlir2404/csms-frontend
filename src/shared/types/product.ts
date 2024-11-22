@@ -9,4 +9,5 @@ export interface IProduct {
     categories: ICategory[];
     createdAt: string;
     updatedAt: string;
+    quantity?: number
 }
