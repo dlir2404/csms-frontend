@@ -93,7 +93,7 @@ export default function MainLayout({
                         <Avatar size="large" icon={<UserOutlined />} />
                     </Popover>
                 </Header>
-                <Content style={{ padding: '48px 0 0 48px', backgroundColor: '#fff' }}>
+                <Content style={{ padding: '48px 0 0 48px', backgroundColor: '#fff', overflowY: 'auto', overflowX: 'hidden' }}>
                     <ProgressProvider>{children}</ProgressProvider>
                 </Content>
             </Layout>

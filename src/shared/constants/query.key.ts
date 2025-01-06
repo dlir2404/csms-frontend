@@ -4,4 +4,5 @@ export enum QueryKey {
     GET_PRODUCTS = 'get_products',
     GET_CATEGORIES = 'get_categories',
     GET_ORDERS = 'get_orders',
+    GET_ORDER = 'get_order',
 }

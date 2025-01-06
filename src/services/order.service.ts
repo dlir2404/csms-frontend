@@ -32,6 +32,15 @@ export const useGetListOrder = ({
     })
 }
 
+export const useGetOrder = (id: number) => {
+    return useQuery({
+        queryKey: [QueryKey.GET_ORDER],
+        queryFn: async () => {
+            return await httpClient.get(ApiEndpoint.GET_ORDER + `/${id}`)
+        }
+    })
+}
+
 
 export const useCreateOrder = (onOk?: Function, onError?: Function) => {
     return useBaseMutation({

@@ -11,6 +11,7 @@ import { SettingOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, DatePicker, Modal, Select, Table, TableProps, Tag } from 'antd';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 
 export default function OrderManagement() {
@@ -26,6 +27,7 @@ export default function OrderManagement() {
   const [processByMe, setProcessByMe] = useState(false)
   const appContext = useAppContext()
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { data, isLoading } = useGetListOrder({
     page: currentPage,
@@ -81,7 +83,13 @@ export default function OrderManagement() {
       title: 'Created by',
       dataIndex: 'createdBy',
       key: 'createdBy',
-      render: value => value.fullName || value.username
+      render: value => value?.fullName || value?.username
+    },
+    {
+      title: 'Processed by',
+      dataIndex: 'processBy',
+      key: 'processBy',
+      render: value => value?.fullName || value?.username
     },
     {
       title: 'Created at',
@@ -92,6 +100,9 @@ export default function OrderManagement() {
     {
       title: <SettingOutlined />,
       key: 'action',
+      onCell: () => ({
+        onClick: (e) => e.stopPropagation(),
+      }),
       render: (_, record) => {
         return (
           <div className='flex gap-4'>
@@ -226,6 +237,7 @@ export default function OrderManagement() {
         >Processed by me</Checkbox>
       </div>
       <Table
+        className='cursor-pointer'
         bordered
         loading={isLoading}
         columns={columns}
@@ -243,6 +255,9 @@ export default function OrderManagement() {
         onChange={(pagination) => {
           setCurrentPage(pagination.current || 1);
         }}
+        onRow={(record) => ({
+          onClick: () => router.push(`/orders/${record.id}`),
+        })}
       />
       <Modal
         title='Process order'
