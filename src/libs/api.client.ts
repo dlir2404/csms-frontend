@@ -15,7 +15,10 @@ class HttpClient {
 
     createFullUrl(url: string, params: Record<string, any>): string {
         const queryString = Object.entries(params)
-            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .map(([key, value]) => {
+                if (value === null || value === undefined || value === '') return null
+                else return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+            }).filter(e => e != null)
             .join('&');
 
         return `${url}?${queryString}`;

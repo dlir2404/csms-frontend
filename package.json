@@ -12,13 +12,16 @@
     "@ant-design/icons": "^5.5.1",
     "@tanstack/react-query": "^5.61.0",
     "antd": "^5.22.1",
+    "dayjs": "^1.11.13",
     "moment": "^2.30.1",
     "next": "14.2.18",
+    "qs": "^6.13.1",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/qs": "^6.9.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

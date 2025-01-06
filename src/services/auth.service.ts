@@ -19,19 +19,22 @@ export const useLogin = (onOk?: Function) => {
 }
 
 export const useGetMe = (queryClient: QueryClient) => {
-    return useQuery({
+    return useQuery(
+      {
         queryKey: [QueryKey.GET_ME],
         queryFn: async () => {
-            if (!httpClient.accessToken) {
-                const accessToken = localStorage.getItem('act')
-                if (!accessToken)   return null;
-
-                httpClient.setToken(accessToken);
-            }
-
-            const result = await httpClient.get(ApiEndpoint.GET_ME);
-
-            return result
+          if (!httpClient.accessToken) {
+            const accessToken = localStorage.getItem('act')
+            if (!accessToken) return null
+  
+            httpClient.setToken(accessToken)
+          }
+  
+          const result = await httpClient.get(ApiEndpoint.GET_ME)
+  
+          return result
         },
-    }, queryClient)
-}
+      },
+      queryClient
+    )
+  }

@@ -3,20 +3,31 @@ import { ApiEndpoint } from "@/shared/constants/api.endpoint"
 import { QueryKey } from "@/shared/constants/query.key"
 import { useBaseMutation } from "@/shared/hooks/mutation"
 import { OrderStatus } from "@/shared/types/order"
+import { TABLE_SORT } from "@/shared/types/sort"
 import { useQuery } from "@tanstack/react-query"
 import { notification } from "antd"
 
 export const useGetListOrder = ({
     page,
-    pageSize
+    pageSize,
+    status,
+    from,
+    to,
+    createdBy,
+    processBy
 }: {
     page?: number,
-    pageSize?: number
+    pageSize?: number,
+    status?: string,
+    from?: string,
+    to?: string,
+    createdBy?: number,
+    processBy?: number
 }) => {
     return useQuery({
-        queryKey: [QueryKey.GET_ORDERS],
+        queryKey: [QueryKey.GET_ORDERS, page, pageSize, status, from, to, createdBy, processBy],
         queryFn: async () => {
-            return await httpClient.get(ApiEndpoint.GET_ORDERS)
+            return await httpClient.get(ApiEndpoint.GET_ORDERS, {page, pageSize, status, from, to, createdBy, processBy, orderBy: 'id', order: TABLE_SORT.DESC})
         }
     })
 }

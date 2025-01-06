@@ -9,7 +9,8 @@ import { formatDate } from '@/shared/utils/format.date';
 import { formatCurrency } from '@/shared/utils/formatCurrency';
 import { SettingOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Modal, Table, TableProps, Tag } from 'antd';
+import { Button, Checkbox, DatePicker, Modal, Select, Table, TableProps, Tag } from 'antd';
+import dayjs from 'dayjs';
 import React, { useState } from 'react'
 
 export default function OrderManagement() {
@@ -18,12 +19,22 @@ export default function OrderManagement() {
   const [processModal, setProcessModal] = useState(false)
   const [completeModal, setCompleteModal] = useState(false)
   const [isLoadingBtn, setIsLoadingBtn] = useState(false)
+  const [status, setStatus] = useState<string | undefined>()
+  const [from, setFrom] = useState<string | undefined>(dayjs().startOf('day').toISOString())
+  const [to, setTo] = useState<string | undefined>(dayjs().add(1, 'day').startOf('day').toISOString())
+  const [createdByMe, setCreatedByMe] = useState(false)
+  const [processByMe, setProcessByMe] = useState(false)
   const appContext = useAppContext()
   const queryClient = useQueryClient()
 
   const { data, isLoading } = useGetListOrder({
     page: currentPage,
-    pageSize: 10
+    pageSize: 10,
+    status,
+    from,
+    to,
+    createdBy: createdByMe ? appContext.user?.id : undefined,
+    processBy: processByMe ? appContext.user?.id : undefined
   })
 
   const columns: TableProps<IOder>['columns'] = [
@@ -106,6 +117,39 @@ export default function OrderManagement() {
                 )}
               </>
             )}
+            {appContext.user?.role === UserRole.ORDER_TAKER && (
+              <>
+                {record.status === OrderStatus.CREATED && (
+                  <div className='flex flex-col gap-4'>
+                    <Button
+                      variant='outlined'
+                      onClick={() => {
+                        setChoosenOrder(record)
+                        setProcessModal(true)
+                      }}
+                    >Process payment</Button>
+                    <Button
+                      variant='outlined'
+                      danger
+                      onClick={() => {
+                        setChoosenOrder(record)
+                        setProcessModal(true)
+                      }}
+                    >Cancel order</Button>
+                  </div>
+                )}
+                {record.status === OrderStatus.PROCESSING && (
+                  <Button
+                    variant='outlined'
+                    danger
+                    onClick={() => {
+                      setChoosenOrder(record)
+                      setProcessModal(true)
+                    }}
+                  >Cancel order</Button>
+                )}
+              </>
+            )}
           </div>
         )
       }
@@ -138,8 +182,49 @@ export default function OrderManagement() {
     completeOrder.mutate({ id: choosenOrder?.id })
   }
 
+  const onStatusChange = (value: any) => {
+    setStatus(value)
+  }
+
   return (
     <div className='mr-12'>
+      <div className='flex gap-4 mb-4 items-center'>
+        <DatePicker
+          defaultValue={dayjs()}
+          onChange={(e) => {
+            if (!e) {
+              setFrom(undefined)
+              setTo(undefined)
+            } else {
+              setFrom(e.toISOString())
+              setTo(e.add(1, 'day').toISOString())
+            }
+          }} />
+        <Select
+          placeholder="Status"
+          allowClear
+          style={{ width: 200 }}
+          onChange={onStatusChange}
+          options={Object.entries(OrderStatus).map(([key, value]) => {
+            return {
+              label: key,
+              value: value
+            }
+          })}
+        />
+        <Checkbox
+          value={createdByMe}
+          onChange={(e) => {
+            setCreatedByMe(e.target.checked)
+          }}
+        >Created by me</Checkbox>
+        <Checkbox
+          value={processByMe}
+          onChange={(e) => {
+            setProcessByMe(e.target.checked)
+          }}
+        >Processed by me</Checkbox>
+      </div>
       <Table
         bordered
         loading={isLoading}
@@ -156,7 +241,6 @@ export default function OrderManagement() {
           total: data?.count,
         }}
         onChange={(pagination) => {
-          console.log(pagination)
           setCurrentPage(pagination.current || 1);
         }}
       />

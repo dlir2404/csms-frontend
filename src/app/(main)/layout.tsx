@@ -33,6 +33,8 @@ export default function MainLayout({
             //gay bug khi push sang login xong dang nhap lai
             //boi vi khi do hook useGetMe co isLoading luon la false trong lan dau tien
             window.location.href = '/login';
+        } else {
+            appContext.setUser(data)
         }
     }, [data, isLoading]);
 
@@ -44,7 +46,6 @@ export default function MainLayout({
         );
     }
 
-    appContext.setUser(data)
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -63,6 +64,7 @@ export default function MainLayout({
                     <Menu
                         theme="dark"
                         mode="horizontal"
+                        selectedKeys={[MenuItems.findIndex(item => item.url === pathName).toString()]}
                         defaultSelectedKeys={[MenuItems.findIndex(item => item.url === pathName).toString()]}
                         items={MenuItems}
                         onSelect={(params: any) => {
