@@ -1,13 +1,16 @@
 'use client'
 import { useAppContext } from '@/app/app-context';
+import PaymentModal from '@/components/comps/PaymentModal';
 import { useCompleteOrder, useGetOrder, useProcessOrder } from '@/services/order.service';
+import { PaymentStatus } from '@/shared/constants/payment';
 import { OrderStatus } from '@/shared/types/order';
 import { IProduct } from '@/shared/types/product';
 import { UserRole } from '@/shared/types/user';
 import { formatDate } from '@/shared/utils/format.date';
 import { formatCurrency } from '@/shared/utils/formatCurrency';
 import { Button, Col, Image, Modal, Row, Table, TableProps, Tag } from 'antd';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation';
 
 interface OrderPageProps {
     params: {
@@ -21,13 +24,42 @@ const showStatus = (value: string) => {
     if (value === OrderStatus.COMPLETED) return <Tag color="green">Completed</Tag>
 }
 
+const showPayment = (value: string | undefined, paymentMethod?: string) => {
+    if (value === PaymentStatus.COMPLETED)
+        return (<>
+            <div className='flex justify-between items-center'>
+                <div>Payment: </div>
+                <div><Tag color="green">PAID</Tag></div>
+            </div>
+            <div className='flex justify-between items-center'>
+                <div>Payment method: </div>
+                <div>{paymentMethod === 'cash' ? "CASH" : ''}</div>
+            </div>
+        </>)
+
+    return (<div className='flex justify-between items-center'>
+        <div>Payment: </div>
+        <div><Tag color="volcano">UNPAID</Tag></div>
+    </div>)
+}
+
 export default function OrderDetail({ params }: OrderPageProps) {
     const { data, isLoading, refetch } = useGetOrder(params.orderId)
     const [processLoading, setProcessLoading] = useState(false)
     const [completeLoading, setCompleteLoading] = useState(false)
     const [processModal, setProcessModal] = useState(false)
     const [completeModal, setCompleteModal] = useState(false)
+    const [paymentModal, setPaymentModal] = useState(false)
     const { user } = useAppContext()
+
+    const searchParams = useSearchParams();
+    const show = searchParams.get('show');
+
+    useEffect(() => {
+        if (show === 'pay') {
+            setPaymentModal(true)
+        }
+    }, [])
 
     let totalPrice = 0;
     let totalQuantity = 0;
@@ -159,10 +191,7 @@ export default function OrderDetail({ params }: OrderPageProps) {
                                 <div>Status: </div>
                                 <div>{showStatus(data?.status)}</div>
                             </div>
-                            <div className='flex justify-between items-center'>
-                                <div>Payment: </div>
-                                <div>Unpaid</div>
-                            </div>
+                            {showPayment(data?.payment?.status, data?.payment?.paymentMethod)}
                             <div className='flex justify-between items-center'>
                                 <div>Note: </div>
                                 <div>{data?.note}</div>
@@ -175,12 +204,17 @@ export default function OrderDetail({ params }: OrderPageProps) {
                 {user?.role === UserRole.ORDER_TAKER && (
                     <>
                         <Button disabled={data?.status !== OrderStatus.CREATED} size='large' danger>Cancel order</Button>
-                        <Button className='ml-4' size='large' type='primary'>Pay order</Button>
+                        <Button disabled={data?.payment?.status === PaymentStatus.COMPLETED} onClick={() => setPaymentModal(true)} className='ml-4' size='large' type='primary'>Pay order</Button>
                     </>
                 )}
                 {user?.role === UserRole.BARISTA && (
                     <>
-                        <Button onClick={() => setProcessModal(true)} disabled={data?.status !== OrderStatus.CREATED} size='large' type='primary'>Process order</Button>
+                        {data?.status === OrderStatus.CREATED && (
+                            <Button onClick={() => setProcessModal(true)} size='large' type='primary'>Process order</Button>
+                        )}
+                        {data?.status === OrderStatus.PROCESSING && (
+                            <Button onClick={() => setCompleteModal(true)} size='large' type='primary'>Complete order</Button>
+                        )}
                     </>
                 )}
             </div>
@@ -203,6 +237,7 @@ export default function OrderDetail({ params }: OrderPageProps) {
             >
                 <p>Confirm to complete this order ?</p>
             </Modal>
+            <PaymentModal onOk={() => refetch()} open={paymentModal} setOpen={setPaymentModal} order={data}></PaymentModal>
         </div>
     )
 }

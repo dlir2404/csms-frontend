@@ -24,4 +24,7 @@ export enum ApiEndpoint {
     CHANGE_ORDER_STATUS = '/order/status',
     PROCESS_ORDER = '/order/status',
     COMPLETE_ORDER = '/order/status',
+    
+    //payment
+    PAY = '/payment'
 }

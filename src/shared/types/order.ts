@@ -4,7 +4,8 @@ import { IUser } from "./user";
 export enum OrderStatus {
     CREATED = 'created',
     PROCESSING = 'processing',
-    COMPLETED = 'completed'
+    COMPLETED = 'completed',
+    CANCELED = 'canceled'
 }
 
 export interface IOder {
@@ -17,4 +18,5 @@ export interface IOder {
     products: IProduct[];
     createBy: IUser;
     processBy: IUser;
+    payment: any
 }

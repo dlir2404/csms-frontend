@@ -1,6 +1,7 @@
 'use client'
 import { useAppContext } from '@/app/app-context';
-import { useCompleteOrder, useGetListOrder, useProcessOrder } from '@/services/order.service';
+import { useCancelOrder, useCompleteOrder, useGetListOrder, useProcessOrder } from '@/services/order.service';
+import { PaymentStatus } from '@/shared/constants/payment';
 import { QueryKey } from '@/shared/constants/query.key';
 import { IOder, OrderStatus } from '@/shared/types/order';
 import { IProduct } from '@/shared/types/product';
@@ -18,6 +19,7 @@ export default function OrderManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [choosenOrder, setChoosenOrder] = useState<IOder | undefined>()
   const [processModal, setProcessModal] = useState(false)
+  const [cancelModal, setCancelModal] = useState(false)
   const [completeModal, setCompleteModal] = useState(false)
   const [isLoadingBtn, setIsLoadingBtn] = useState(false)
   const [status, setStatus] = useState<string | undefined>()
@@ -61,11 +63,21 @@ export default function OrderManagement() {
       dataIndex: 'status',
       key: 'status',
       render: (value) => {
-        if (value === OrderStatus.CREATED) return <Tag color="volcano">Waiting for processing</Tag>
+        if (value === OrderStatus.CREATED) return <Tag color="gold">Waiting for processing</Tag>
         if (value === OrderStatus.PROCESSING) return <Tag color="blue">Processing</Tag>
         if (value === OrderStatus.COMPLETED) return <Tag color="green">Completed</Tag>
+        if (value === OrderStatus.CANCELED) return <Tag color="red">Canceled</Tag>
 
         return '';
+      }
+    },
+    {
+      title: 'PaymentStatus',
+      dataIndex: 'payment',
+      key: 'payment',
+      render: (payment) => {
+        if (payment?.status === PaymentStatus.COMPLETED) return <Tag color="green">PAID</Tag>
+        return <Tag color="volcano">UNPAID</Tag>
       }
     },
     {
@@ -120,6 +132,7 @@ export default function OrderManagement() {
                 {record.status === OrderStatus.PROCESSING && (
                   <Button
                     type='primary'
+                    disabled={record.processBy.id !== appContext.user.id}
                     onClick={() => {
                       setChoosenOrder(record)
                       setCompleteModal(true)
@@ -130,35 +143,25 @@ export default function OrderManagement() {
             )}
             {appContext.user?.role === UserRole.ORDER_TAKER && (
               <>
-                {record.status === OrderStatus.CREATED && (
-                  <div className='flex flex-col gap-4'>
-                    <Button
-                      variant='outlined'
-                      onClick={() => {
-                        setChoosenOrder(record)
-                        setProcessModal(true)
-                      }}
-                    >Process payment</Button>
-                    <Button
-                      variant='outlined'
-                      danger
-                      onClick={() => {
-                        setChoosenOrder(record)
-                        setProcessModal(true)
-                      }}
-                    >Cancel order</Button>
-                  </div>
-                )}
-                {record.status === OrderStatus.PROCESSING && (
+                <div className='flex flex-col gap-4'>
                   <Button
                     variant='outlined'
+                    disabled={record?.payment?.status === PaymentStatus.COMPLETED || record.status === OrderStatus.CANCELED}
+                    type='primary'
+                    onClick={() => {
+                      router.push(`orders/${record.id}?show=pay`)
+                    }}
+                  >Process payment</Button>
+                  <Button
+                    variant='outlined'
+                    disabled={record.status !== OrderStatus.CREATED}
                     danger
                     onClick={() => {
                       setChoosenOrder(record)
-                      setProcessModal(true)
+                      setCancelModal(true)
                     }}
                   >Cancel order</Button>
-                )}
+                </div>
               </>
             )}
           </div>
@@ -191,6 +194,19 @@ export default function OrderManagement() {
   const handleOKComplete = () => {
     setIsLoadingBtn(true)
     completeOrder.mutate({ id: choosenOrder?.id })
+  }
+
+  const cancelOrder = useCancelOrder(() => {
+    setIsLoadingBtn(false)
+    setCancelModal(false)
+    queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
+  }, () => {
+    setIsLoadingBtn(false)
+  })
+
+  const handleCancelOKComplete = () => {
+    setIsLoadingBtn(true)
+    cancelOrder.mutate({ id: choosenOrder?.id })
   }
 
   const onStatusChange = (value: any) => {
@@ -276,6 +292,15 @@ export default function OrderManagement() {
         confirmLoading={isLoadingBtn}
       >
         <p>Confirm to complete this order ?</p>
+      </Modal>
+      <Modal
+        title={<p className='text-red-700'>Cancel order</p>}
+        open={cancelModal}
+        onOk={handleCancelOKComplete}
+        onCancel={() => setCancelModal(false)}
+        confirmLoading={isLoadingBtn}
+      >
+        <p className='text-red-600'>Confirm to cancel this order ?</p>
       </Modal>
     </div>
   )

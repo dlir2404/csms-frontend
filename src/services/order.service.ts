@@ -110,3 +110,27 @@ export const useCompleteOrder = (onOk?: Function, onError?: Function) => {
         }
     })
 }
+
+export const useCancelOrder = (onOk?: Function, onError?: Function) => {
+    return useBaseMutation({
+        mutationFn: async (body: any) => {
+            const { id } = body
+            return await httpClient.put(ApiEndpoint.COMPLETE_ORDER, { status: OrderStatus.CANCELED }, { id: id })
+        },
+        onSuccess: (data: any) => {
+            onOk && onOk()
+            notification.success({
+                placement: 'top',
+                message: 'Canceled'
+            })
+        },
+        onError: (error: any) => {
+            onError && onError()
+            notification.error({
+                placement: 'top',
+                message: error.error,
+                description: Array.isArray(error.message) ? error.message[0] : error.message
+            })
+        }
+    })
+}
