@@ -4,9 +4,8 @@ import { Button } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { IOder } from '@/shared/types/order';
 
-const PrintBill = ({ order }: { order: IOder }) => {
+const PrintBill = ({ order, discount }: { order: IOder, discount?: number }) => {
     const handlePrint = () => {
-        console.log(order)
         // Create a new window for the bill
         const printWindow = window.open('', '_blank');
 
@@ -15,149 +14,179 @@ const PrintBill = ({ order }: { order: IOder }) => {
         <!DOCTYPE html>
         <html>
             <head>
-            <title>Bill Receipt</title>
-            <style>
-                @page {
-                size: 80mm auto; /* Chiều rộng cố định, chiều cao tự động */
-                margin: 0;
-                }
-                
-                body {
-                font-family: 'Courier New', monospace;
-                width: 80mm;
-                padding: 10px;
-                margin: 0;
-                font-size: 12px;
-                }
+                <title>Bill Receipt</title>
+                <style>
+                    @page {
+                        size: 80mm auto;
+                        margin: 0;
+                    }
+                    
+                    body {
+                        font-family: 'Courier New', monospace;
+                        width: 80mm;
+                        padding: 10px;
+                        margin: 0;
+                        font-size: 12px;
+                    }
 
-                .bill-header {
-                text-align: center;
-                font-weight: bold;
-                margin-bottom: 5px;
-                }
+                    .bill-header {
+                        text-align: center;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
 
-                .bill-info {
-                margin-bottom: 10px;
-                }
+                    .bill-info {
+                        margin-bottom: 10px;
+                    }
 
-                .bill-info div {
-                display: flex;
-                justify-content: space-between;
-                }
+                    .bill-info div {
+                        display: flex;
+                        justify-content: space-between;
+                    }
 
-                table {
-                width: 100%;
-                margin: 10px 0;
-                border-collapse: collapse;
-                }
+                    .order-content {
+                        width: 100%;
+                    }
 
-                th {
-                text-align: left;
-                font-weight: normal;
-                }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 8px;
+                    }
 
-                .product-row {
-                margin-bottom: 4px;
-                }
+                    th {
+                        text-align: left;
+                        font-weight: normal;
+                        padding: 2px 4px;
+                    }
 
-                .product-name {
-                margin-bottom: 2px;
-                }
+                    .product-row {
+                        display: grid;
+                        grid-template-columns: 30px auto 30px 60px 70px;
+                        width: 100%;
+                        margin-bottom: 4px;
+                        padding: 2px 4px;
+                    }
 
-                .product-option {
-                padding-left: 15px;
-                color: #666;
-                font-size: 11px;
-                }
+                    .product-option {
+                        grid-column: 1 / -1;
+                        padding-left: 34px;
+                        color: #666;
+                        font-size: 11px;
+                    }
 
-                .total-section {
-                margin: 8px 0;
-                border-top: 1px solid #000;
-                padding-top: 8px;
-                }
+                    .text-right {
+                        text-align: right;
+                    }
 
-                .total-row {
-                display: flex;
-                justify-content: space-between;
-                }
+                    .text-center {
+                        text-align: center;
+                    }
 
-                .store-info {
-                text-align: center;
-                margin-top: 15px;
-                font-size: 11px;
-                }
+                    .total-section {
+                        margin: 8px 0;
+                        border-top: 1px solid #000;
+                        padding-top: 8px;
+                    }
 
-                .thank-you {
-                text-align: center;
-                margin-top: 10px;
-                font-size: 11px;
-                }
-            </style>
+                    .total-row {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 4px;
+                    }
+
+                    .total-row.bold {
+                        font-weight: bold;
+                    }
+
+                    .store-info {
+                        text-align: center;
+                        margin-top: 15px;
+                        font-size: 11px;
+                    }
+
+                    .thank-you {
+                        text-align: center;
+                        margin-top: 10px;
+                        font-size: 11px;
+                        padding-bottom: 10px;
+                    }
+                </style>
             </head>
             <body>
-            <div class="bill-header">
-                HÓA ĐƠN THANH TOÁN
-                <div>Số HĐ: ${order.id}</div>
-            </div>
-
-            <div class="bill-info">
-                <div>
-                <span>Mã HĐ: #${order.id || 'GH8ZV'}</span>
-                <span>TN: ${order?.createdBy?.fullName || order?.createdBy?.username}</span>
+                <div class="bill-header">
+                    HÓA ĐƠN THANH TOÁN
+                    <div>Số HĐ: ${order.id}</div>
                 </div>
-                <div>
-                <span>Ngày: ${new Date().toLocaleDateString('vi-VN')}</span>
-                </div>
-            </div>
 
-            <table>
-                <tr>
-                <th style="width: 30px">STT</th>
-                <th>Tên món</th>
-                <th style="width: 30px">SL</th>
-                <th style="width: 60px; text-align: right">Đơn giá</th>
-                <th style="width: 70px; text-align: right">Thành tiền</th>
-                </tr>
-            </table>
-
-            <div class="items">
-                ${order.products.map((item, index) => `
-                <div class="product-row">
-                    <div class="product-name">
-                    <div style="display: flex; justify-content: space-between">
-                        <span>${index + 1}. ${item.name}</span>
-                        <span style="text-align: right">${item.quantity} ${((item?.quantity || 0) * item.price).toLocaleString()}đ</span>
+                <div class="bill-info">
+                    <div>
+                        <span>Mã HĐ: #${order.id || 'GH8ZV'}</span>
+                        <span>TN: ${order?.createdBy?.fullName || order?.createdBy?.username}</span>
                     </div>
+                    <div>
+                        <span>Ngày: ${new Date().toLocaleDateString('vi-VN')}</span>
+                        <span>Giờ: ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
-                    ${item.note ? `<div class="product-option">- ${item.note}</div>` : ''}
                 </div>
-                `).join('')}
-            </div>
 
-            <div class="total-section">
-                <div class="total-row">
-                <span>Thành tiền:</span>
-                <span>${order.totalPrice.toLocaleString()}đ</span>
-                </div>
-                <div class="total-row">
-                <span>Tổng tiền:</span>
-                <span>${order.totalPrice.toLocaleString()}đ</span>
-                </div>
-                ${order.payment ? `
-                <div class="total-row">
-                    <span>+ Thanh toán (${order.payment.paymentMethod})</span>
-                    <span>${order.totalPrice.toLocaleString()}đ</span>
-                </div>
-                ` : ''}
-            </div>
+                <div class="order-content">
+                    <table>
+                        <tr>
+                            <th style="width: 30px">STT</th>
+                            <th>Tên món</th>
+                            <th style="width: 20px; text-align: center">SL</th>
+                            <th style="width: 60px; text-align: right">Đơn giá</th>
+                            <th style="width: 80px; text-align: right">Thành tiền</th>
+                        </tr>
+                    </table>
 
-            <div class="store-info">
-                CSMS<br/>
-            </div>
+                    <div class="items">
+                        ${order.products.map((item, index) => `
+                            <div class="product-row">
+                                <span>${index + 1}</span>
+                                <span>${item.name}</span>
+                                <span class="text-center">${item.quantity}</span>
+                                <span class="text-right">${item.price.toLocaleString()}</span>
+                                <span class="text-right">${((item?.quantity || 0) * item.price).toLocaleString()}</span>
+                                ${item.note ? `<div class="product-option">- ${item.note}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
 
-            <div class="thank-you">
-                Cảm ơn Quý Khách<br/>
-            </div>
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>Thành tiền:</span>
+                        <span>${order.totalPrice.toLocaleString()}đ</span>
+                    </div>
+                    <div class="total-row">
+                        <span>VAT:</span>
+                        <span>${(order.totalPrice / 10).toLocaleString()}đ</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Discount:</span>
+                        <span>${(discount || 0).toLocaleString()}đ</span>
+                    </div>
+                    <div class="total-row bold">
+                        <span>Tổng tiền:</span>
+                        <span>${(order.totalPrice * 1.1 - (discount || 0)).toLocaleString()}đ</span>
+                    </div>
+                    ${order.payment ? `
+                        <div class="total-row">
+                            <span>+ Thanh toán (${order.payment.paymentMethod})</span>
+                            <span>${order.totalPrice.toLocaleString()}đ</span>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="store-info">
+                    CSMS<br/>
+                </div>
+
+                <div class="thank-you">
+                    Cảm ơn Quý Khách<br/>
+                </div>
             </body>
         </html>
         `;

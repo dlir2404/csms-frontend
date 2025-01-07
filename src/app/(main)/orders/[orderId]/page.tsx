@@ -205,7 +205,6 @@ export default function OrderDetail({ params }: OrderPageProps) {
                 {user?.role === UserRole.ORDER_TAKER && (
                     <>
                         <Button disabled={data?.status !== OrderStatus.CREATED} size='large' danger>Cancel order</Button>
-                        <PrintBill order={data} />
                         <Button disabled={data?.payment?.status === PaymentStatus.COMPLETED} onClick={() => setPaymentModal(true)} size='large' type='primary'>Pay order</Button>
                     </>
                 )}
@@ -239,7 +238,9 @@ export default function OrderDetail({ params }: OrderPageProps) {
             >
                 <p>Confirm to complete this order ?</p>
             </Modal>
-            <PaymentModal onOk={() => refetch()} open={paymentModal} setOpen={setPaymentModal} order={data}></PaymentModal>
+            {paymentModal && (
+                <PaymentModal onOk={() => refetch()} open={paymentModal} setOpen={setPaymentModal} order={data}></PaymentModal>
+            )}
         </div>
     )
 }
