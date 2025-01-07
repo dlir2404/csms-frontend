@@ -17,3 +17,11 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hidden {
+    -ms-overflow-style: none; /* for Internet Explorer */
+    scrollbar-width: none; /* for Firefox */
+}

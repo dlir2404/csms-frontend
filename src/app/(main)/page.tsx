@@ -9,15 +9,23 @@ import { useState } from "react";
 import './scrollbar.css';
 import { useAppContext } from "../app-context";
 import { UserRole } from "@/shared/types/user";
+import { useGetListCategory } from "@/services/category.service";
 
 export default function Home() {
   const [cart, setCart] = useState<ICart | undefined>();
+  const [category, setCategory] = useState<number | undefined>()
   const appContext = useAppContext()
 
   const { data: products, isLoading } = useGetListProduct({
     page: 1,
-    pageSize: 1000
+    pageSize: 1000,
+    category
   });
+
+  const { data: categories } = useGetListCategory({
+    page: 1,
+    pageSize: 1000
+  })
 
   if (isLoading) {
     return (
@@ -37,8 +45,23 @@ export default function Home() {
 
   return (
     <div className="flex h-[calc(100vh-112px)]">
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto p-4 list-products">
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex gap-4 w-full overflow-x-scroll scrollbar-hidden flex-nowrap">
+          {categories?.rows?.map((ctgr: { id: number, name: string }) => {
+            return <div
+              className={`px-4 py-2 rounded-lg border whitespace-nowrap cursor-pointer ` + (ctgr.id === category ? 'bg-blue-500 text-white' : '')}
+              key={ctgr.id}
+              onClick={() => {
+                if (ctgr.id === category) {
+                  setCategory(undefined)
+                } else {
+                  setCategory(ctgr.id)
+                }
+              }}
+            >{ctgr.name}</div>
+          })}
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 list-products">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.rows.map((product: IProduct) => (
               <div

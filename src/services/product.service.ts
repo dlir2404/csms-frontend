@@ -8,15 +8,17 @@ import { error } from "console"
 
 export const useGetListProduct = ({
     page,
-    pageSize
+    pageSize,
+    category
 }: {
     page: number,
-    pageSize: number
+    pageSize: number,
+    category?: number
 }) => {
     return useQuery({
-        queryKey: [QueryKey.GET_PRODUCTS, page, pageSize],
+        queryKey: [QueryKey.GET_PRODUCTS, page, pageSize, category],
         queryFn: async () => {
-            return await httpClient.get(ApiEndpoint.GET_PRODUCTS, {page, pageSize})
+            return await httpClient.get(ApiEndpoint.GET_PRODUCTS, {page, pageSize, category})
         }
     })
 }
