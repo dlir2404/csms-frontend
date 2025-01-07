@@ -11,6 +11,7 @@ import { formatCurrency } from '@/shared/utils/formatCurrency';
 import { Button, Col, Image, Modal, Row, Table, TableProps, Tag } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation';
+import PrintBill from '@/components/comps/PrintBill';
 
 interface OrderPageProps {
     params: {
@@ -200,11 +201,12 @@ export default function OrderDetail({ params }: OrderPageProps) {
                     </Col>
                 </div>
             </div>
-            <div className='p-16 float-end'>
+            <div className='p-16 flex gap-4 float-end'>
                 {user?.role === UserRole.ORDER_TAKER && (
                     <>
                         <Button disabled={data?.status !== OrderStatus.CREATED} size='large' danger>Cancel order</Button>
-                        <Button disabled={data?.payment?.status === PaymentStatus.COMPLETED} onClick={() => setPaymentModal(true)} className='ml-4' size='large' type='primary'>Pay order</Button>
+                        <PrintBill order={data} />
+                        <Button disabled={data?.payment?.status === PaymentStatus.COMPLETED} onClick={() => setPaymentModal(true)} size='large' type='primary'>Pay order</Button>
                     </>
                 )}
                 {user?.role === UserRole.BARISTA && (

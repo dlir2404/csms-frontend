@@ -9,5 +9,6 @@ export interface IProduct {
     categories: ICategory[];
     createdAt: string;
     updatedAt: string;
-    quantity?: number
+    quantity?: number;
+    note?: string;
 }

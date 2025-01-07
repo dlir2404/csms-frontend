@@ -16,7 +16,7 @@ export interface IOder {
     createdAt: string;
     updatedAt: string;
     products: IProduct[];
-    createBy: IUser;
+    createdBy: IUser;
     processBy: IUser;
     payment: any
 }
