@@ -2,10 +2,10 @@
 import { useCreateOrder } from '@/services/order.service'
 import { ICart, ICartItem } from '@/shared/types/cart'
 import { formatCurrency } from '@/shared/utils/formatCurrency'
-import { DeleteOutlined } from '@ant-design/icons'
-import { Button, Empty, Modal, Table, TableProps } from 'antd'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import { Button, Empty, Input, Modal, Table, TableProps } from 'antd'
 import { useRouter } from 'next/navigation'
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import React, { Dispatch, SetStateAction, useRef, useState } from 'react'
 
 export default function Cart({
     cart, setCart
@@ -16,12 +16,18 @@ export default function Cart({
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    
-    const createOrder = useCreateOrder(() => {
+    const [noteModal, setNoteModal] = useState(false)
+    const [itemNoteModal, setItemNoteModal] = useState(false)
+    const [note, setNote] = useState()
+    const [item, setItem] = useState<any>()
+    const inputRef = useRef<any>();
+    const inputRef2 = useRef<any>();
+
+    const createOrder = useCreateOrder((data: any) => {
         setIsLoading(false)
         setIsOpen(false)
         setCart(undefined)
-        router.push('/orders')
+        router.push(`/orders/${data.id}`)
     }, () => {
         setIsLoading(false)
     })
@@ -76,6 +82,9 @@ export default function Cart({
             title: '',
             key: 'action',
             width: '32px',
+            onCell: () => ({
+                onClick: (e) => e.stopPropagation(),
+            }),
             render: (_, record) => {
                 return (
                     <Button
@@ -90,22 +99,33 @@ export default function Cart({
 
     const handleOK = () => {
         setIsLoading(true)
-        createOrder.mutate({
+        console.log({
             totalPrice: cart.totalPrice,
-            note: '',   //add later
+            note: note,
             products: cart.items.map(item => {
                 return {
                     productId: item.product.id,
-                    quantity: item.quantity
+                    quantity: item.quantity,
+                    note: item.note
+                }
+            })
+        })
+        createOrder.mutate({
+            totalPrice: cart.totalPrice,
+            note: note,
+            products: cart.items.map(item => {
+                return {
+                    productId: item.product.id,
+                    quantity: item.quantity,
+                    note: item.note
                 }
             })
         })
     }
-
     return (
         <div className='relative h-full'>
             <Table
-                className='w-96'
+                className='w-96 cursor-pointer'
                 columns={columns}
                 dataSource={cart?.items.map((item: any, index: number) => {
                     return {
@@ -114,8 +134,21 @@ export default function Cart({
                     }
                 })}
                 pagination={false}
+                onRow={(record) => ({
+                    onClick: () => {
+                        setItemNoteModal(true)
+                        setItem(record)
+                    },
+                })}
             />
-            <div className='absolute left-0 right-0 bottom-0 border-t-slate-200 border-t'>
+            <div className='absolute left-0 right-0 bottom-0'>
+                <div
+                    className='flex justify-between items-center p-4 border-slate-200 border cursor-pointer'
+                    onClick={() => setNoteModal(true)}
+                >
+                    <div>Add note</div>
+                    <PlusOutlined />
+                </div>
                 <div className='flex justify-around font-bold p-4'>
                     <div>Total: </div>
                     <div>{formatCurrency(cart.totalPrice || 0)} VND</div>
@@ -133,6 +166,58 @@ export default function Cart({
             >
                 <p>Create order with items from cart ?</p>
             </Modal>
+            <Modal
+                title='Add note'
+                open={noteModal}
+                onOk={() => {
+                    setNoteModal(false)
+                    if (inputRef.current) {
+                        setNote(inputRef.current.input.value)
+                    }
+                }}
+                onCancel={() => setNoteModal(false)}
+                confirmLoading={isLoading}
+            >
+                <p>Add note for this order</p>
+                <Input ref={inputRef} defaultValue={note} placeholder='note' />
+            </Modal>
+            {itemNoteModal && (
+                <Modal
+                title='Add note'
+                open={itemNoteModal}
+                onOk={() => {
+                    setItemNoteModal(false)
+                    if (inputRef2.current) {
+                        setCart(prevVal => {
+                            if (!prevVal) return undefined
+                            const newItems = prevVal.items.map((e) => {
+                                if (e.product.id === item?.product?.id) {
+                                    return {
+                                        ...e,
+                                        note: inputRef2.current.input.value
+                                    }
+                                }
+                                return e
+                            })
+                            return {
+                                totalPrice: prevVal.totalPrice,
+                                note: prevVal.note,
+                                items: newItems
+                            }
+                        })
+                    }
+                    setItem(undefined)
+                }}
+                onCancel={() => setItemNoteModal(false)}
+                confirmLoading={isLoading}
+            >
+                <p>Add note for this item</p>
+                <Input
+                    ref={inputRef2}
+                    defaultValue={cart.items.find(e => e?.product?.id === item?.product?.id)?.note}
+                    placeholder='note' />
+            </Modal>
+            )}
         </div>
     )
 }

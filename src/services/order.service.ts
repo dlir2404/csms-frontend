@@ -46,7 +46,7 @@ export const useCreateOrder = (onOk?: Function, onError?: Function) => {
     return useBaseMutation({
         mutationFn: async (body: any) => await httpClient.post(ApiEndpoint.CREATE_ORDER, body),
         onSuccess: (data: any) => {
-            onOk && onOk()
+            onOk && onOk(data)
             notification.success({
                 placement: 'top',
                 message: 'Successfully'

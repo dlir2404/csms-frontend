@@ -79,6 +79,11 @@ export default function OrderDetail({ params }: OrderPageProps) {
             key: 'name'
         },
         {
+            title: 'Note',
+            dataIndex: 'note',
+            key: 'note',
+        },
+        {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity'
@@ -170,7 +175,7 @@ export default function OrderDetail({ params }: OrderPageProps) {
                 {user?.role === UserRole.ORDER_TAKER && (
                     <>
                         <Button disabled={data?.status !== OrderStatus.CREATED} size='large' danger>Cancel order</Button>
-                        <Button size='large' type='primary'>Pay order</Button>
+                        <Button className='ml-4' size='large' type='primary'>Pay order</Button>
                     </>
                 )}
                 {user?.role === UserRole.BARISTA && (
