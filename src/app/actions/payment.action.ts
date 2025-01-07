@@ -29,7 +29,7 @@ export async function createRedirectUrl(payload: ICreateRedirectUrl) {
   params['vnp_TxnRef'] = payload.orderId //replace with order id later
   params['vnp_OrderInfo'] = payload.content
   params['vnp_OrderType'] = payload.type
-  params['vnp_Amount'] = payload.amount * 100
+  params['vnp_Amount'] = (payload.amount * 100).toFixed(0)
   params['vnp_CreateDate'] = moment(currentDate).format('YYYYMMDDHHmmss')
 
   params = sortObject(params)

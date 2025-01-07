@@ -33,7 +33,7 @@ export default function PaymentResult({ searchParams }: { searchParams: IVnPayPa
 
   if (!isValid) {
     return (
-      <div className="fixed top-[64px] flex items-center justify-center right-0 bottom-0 left-0 bg-slate-300">
+      <div className="fixed flex items-center justify-center top-0 right-0 bottom-0 left-0 bg-slate-300">
         <div className="w-[600px] bg-white rounded-3xl">
           <div className="w-full h-[250px] flex items-center justify-center border-b border-dashed">
             <div className="w-full flex flex-col items-center justify-center">

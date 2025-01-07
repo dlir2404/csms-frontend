@@ -2,7 +2,7 @@
 import { useAppContext } from '@/app/app-context';
 import PaymentModal from '@/components/comps/PaymentModal';
 import { useCompleteOrder, useGetOrder, useProcessOrder } from '@/services/order.service';
-import { PaymentStatus } from '@/shared/constants/payment';
+import { PaymentMethod, PaymentStatus } from '@/shared/constants/payment';
 import { OrderStatus } from '@/shared/types/order';
 import { IProduct } from '@/shared/types/product';
 import { UserRole } from '@/shared/types/user';
@@ -34,7 +34,12 @@ const showPayment = (value: string | undefined, paymentMethod?: string) => {
             </div>
             <div className='flex justify-between items-center'>
                 <div>Payment method: </div>
-                <div>{paymentMethod === 'cash' ? "CASH" : ''}</div>
+                {paymentMethod === PaymentMethod.CASH && (
+                    <div>CASH</div>
+                )}
+                {paymentMethod === PaymentMethod.VNPAY && (
+                    <div>VNPay</div>
+                )}
             </div>
         </>)
 

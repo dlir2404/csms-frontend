@@ -26,5 +26,5 @@ export enum ApiEndpoint {
     COMPLETE_ORDER = '/order/status',
     
     //payment
-    PAY = '/payment'
+    PAY = '/api/payment'
 }
