@@ -1,4 +1,4 @@
 export enum TABLE_SORT {
-    ASC = 'asc',
-    DESC = 'desc'
+  ASC = 'asc',
+  DESC = 'desc',
 }

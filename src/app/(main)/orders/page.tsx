@@ -1,22 +1,27 @@
 'use client'
-import { useAppContext } from '@/app/app-context';
-import { useCancelOrder, useCompleteOrder, useGetListOrder, useProcessOrder } from '@/services/order.service';
-import { PaymentStatus } from '@/shared/constants/payment';
-import { QueryKey } from '@/shared/constants/query.key';
-import { IOder, OrderStatus } from '@/shared/types/order';
-import { IProduct } from '@/shared/types/product';
-import { UserRole } from '@/shared/types/user';
-import { formatDate } from '@/shared/utils/format.date';
-import { formatCurrency } from '@/shared/utils/formatCurrency';
-import { SettingOutlined } from '@ant-design/icons';
-import { useQueryClient } from '@tanstack/react-query';
-import { Button, Checkbox, DatePicker, Modal, Select, Table, TableProps, Tag } from 'antd';
-import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation';
+import { useAppContext } from '@/app/app-context'
+import {
+  useCancelOrder,
+  useCompleteOrder,
+  useGetListOrder,
+  useProcessOrder,
+} from '@/services/order.service'
+import { PaymentStatus } from '@/shared/constants/payment'
+import { QueryKey } from '@/shared/constants/query.key'
+import { IOder, OrderStatus } from '@/shared/types/order'
+import { IProduct } from '@/shared/types/product'
+import { UserRole } from '@/shared/types/user'
+import { formatDate } from '@/shared/utils/format.date'
+import { formatCurrency } from '@/shared/utils/formatCurrency'
+import { SettingOutlined } from '@ant-design/icons'
+import { useQueryClient } from '@tanstack/react-query'
+import { Button, Checkbox, DatePicker, Modal, Select, Table, TableProps, Tag } from 'antd'
+import dayjs from 'dayjs'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 export default function OrderManagement() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1)
   const [choosenOrder, setChoosenOrder] = useState<IOder | undefined>()
   const [processModal, setProcessModal] = useState(false)
   const [cancelModal, setCancelModal] = useState(false)
@@ -24,7 +29,9 @@ export default function OrderManagement() {
   const [isLoadingBtn, setIsLoadingBtn] = useState(false)
   const [status, setStatus] = useState<string | undefined>()
   const [from, setFrom] = useState<string | undefined>(dayjs().startOf('day').toISOString())
-  const [to, setTo] = useState<string | undefined>(dayjs().add(1, 'day').startOf('day').toISOString())
+  const [to, setTo] = useState<string | undefined>(
+    dayjs().add(1, 'day').startOf('day').toISOString()
+  )
   const [createdByMe, setCreatedByMe] = useState(false)
   const [processByMe, setProcessByMe] = useState(false)
   const appContext = useAppContext()
@@ -38,25 +45,25 @@ export default function OrderManagement() {
     from,
     to,
     createdBy: createdByMe ? appContext.user?.id : undefined,
-    processBy: processByMe ? appContext.user?.id : undefined
+    processBy: processByMe ? appContext.user?.id : undefined,
   })
 
   const columns: TableProps<IOder>['columns'] = [
     {
       title: 'ID',
       dataIndex: 'id',
-      key: 'id'
+      key: 'id',
     },
     {
       title: 'Total price',
       dataIndex: 'totalPrice',
       key: 'totalPrice',
-      render: value => <p>{formatCurrency(value)} VND</p>
+      render: (value) => <p>{formatCurrency(value)} VND</p>,
     },
     {
       title: 'Note',
       dataIndex: 'note',
-      key: 'note'
+      key: 'note',
     },
     {
       title: 'Status',
@@ -68,8 +75,8 @@ export default function OrderManagement() {
         if (value === OrderStatus.COMPLETED) return <Tag color="green">Completed</Tag>
         if (value === OrderStatus.CANCELED) return <Tag color="red">Canceled</Tag>
 
-        return '';
-      }
+        return ''
+      },
     },
     {
       title: 'PaymentStatus',
@@ -78,36 +85,36 @@ export default function OrderManagement() {
       render: (payment) => {
         if (payment?.status === PaymentStatus.COMPLETED) return <Tag color="green">PAID</Tag>
         return <Tag color="volcano">UNPAID</Tag>
-      }
+      },
     },
     {
       title: 'Quantity',
       dataIndex: 'products',
       key: 'products',
       render: (value: IProduct[]) => {
-        let quantity = 0;
+        let quantity = 0
 
-        value.forEach(product => quantity += product.quantity || 0)
+        value.forEach((product) => (quantity += product.quantity || 0))
         return <p>{quantity}</p>
-      }
+      },
     },
     {
       title: 'Created by',
       dataIndex: 'createdBy',
       key: 'createdBy',
-      render: value => value?.fullName || value?.username
+      render: (value) => value?.fullName || value?.username,
     },
     {
       title: 'Processed by',
       dataIndex: 'processBy',
       key: 'processBy',
-      render: value => value?.fullName || value?.username
+      render: (value) => value?.fullName || value?.username,
     },
     {
       title: 'Created at',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: value => <p>{formatDate(value)}</p>
+      render: (value) => <p>{formatDate(value)}</p>,
     },
     {
       title: <SettingOutlined />,
@@ -117,92 +124,112 @@ export default function OrderManagement() {
       }),
       render: (_, record) => {
         return (
-          <div className='flex gap-4'>
+          <div className="flex gap-4">
             {appContext.user?.role === UserRole.BARISTA && (
               <>
                 {record.status === OrderStatus.CREATED && (
                   <Button
-                    variant='outlined'
+                    variant="outlined"
                     onClick={() => {
                       setChoosenOrder(record)
                       setProcessModal(true)
                     }}
-                  >Process</Button>
+                  >
+                    Process
+                  </Button>
                 )}
                 {record.status === OrderStatus.PROCESSING && (
                   <Button
-                    type='primary'
+                    type="primary"
                     disabled={record.processBy.id !== appContext.user.id}
                     onClick={() => {
                       setChoosenOrder(record)
                       setCompleteModal(true)
                     }}
-                  >Complete</Button>
+                  >
+                    Complete
+                  </Button>
                 )}
               </>
             )}
             {appContext.user?.role === UserRole.ORDER_TAKER && (
               <>
-                <div className='flex flex-col gap-4'>
+                <div className="flex flex-col gap-4">
                   <Button
-                    variant='outlined'
-                    disabled={record?.payment?.status === PaymentStatus.COMPLETED || record.status === OrderStatus.CANCELED}
-                    type='primary'
+                    variant="outlined"
+                    disabled={
+                      record?.payment?.status === PaymentStatus.COMPLETED ||
+                      record.status === OrderStatus.CANCELED
+                    }
+                    type="primary"
                     onClick={() => {
                       router.push(`orders/${record.id}?show=pay`)
                     }}
-                  >Process payment</Button>
+                  >
+                    Process payment
+                  </Button>
                   <Button
-                    variant='outlined'
+                    variant="outlined"
                     disabled={record.status !== OrderStatus.CREATED}
                     danger
                     onClick={() => {
                       setChoosenOrder(record)
                       setCancelModal(true)
                     }}
-                  >Cancel order</Button>
+                  >
+                    Cancel order
+                  </Button>
                 </div>
               </>
             )}
           </div>
         )
-      }
-    }
+      },
+    },
   ]
 
-  const processOrder = useProcessOrder(() => {
-    setIsLoadingBtn(false)
-    setProcessModal(false)
-    queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
-  }, () => {
-    setIsLoadingBtn(false)
-  })
+  const processOrder = useProcessOrder(
+    () => {
+      setIsLoadingBtn(false)
+      setProcessModal(false)
+      queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
+    },
+    () => {
+      setIsLoadingBtn(false)
+    }
+  )
 
   const handleOKProcess = () => {
     setIsLoadingBtn(true)
     processOrder.mutate({ id: choosenOrder?.id })
   }
 
-  const completeOrder = useCompleteOrder(() => {
-    setIsLoadingBtn(false)
-    setCompleteModal(false)
-    queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
-  }, () => {
-    setIsLoadingBtn(false)
-  })
+  const completeOrder = useCompleteOrder(
+    () => {
+      setIsLoadingBtn(false)
+      setCompleteModal(false)
+      queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
+    },
+    () => {
+      setIsLoadingBtn(false)
+    }
+  )
 
   const handleOKComplete = () => {
     setIsLoadingBtn(true)
     completeOrder.mutate({ id: choosenOrder?.id })
   }
 
-  const cancelOrder = useCancelOrder(() => {
-    setIsLoadingBtn(false)
-    setCancelModal(false)
-    queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
-  }, () => {
-    setIsLoadingBtn(false)
-  })
+  const cancelOrder = useCancelOrder(
+    () => {
+      setIsLoadingBtn(false)
+      setCancelModal(false)
+      queryClient.invalidateQueries({ queryKey: [QueryKey.GET_ORDERS] })
+    },
+    () => {
+      setIsLoadingBtn(false)
+    }
+  )
 
   const handleCancelOKComplete = () => {
     setIsLoadingBtn(true)
@@ -214,8 +241,8 @@ export default function OrderManagement() {
   }
 
   return (
-    <div className='mr-12'>
-      <div className='flex gap-4 mb-4 items-center'>
+    <div className="mr-12">
+      <div className="flex gap-4 mb-4 items-center">
         <DatePicker
           defaultValue={dayjs()}
           onChange={(e) => {
@@ -226,7 +253,8 @@ export default function OrderManagement() {
               setFrom(e.toISOString())
               setTo(e.add(1, 'day').toISOString())
             }
-          }} />
+          }}
+        />
         <Select
           placeholder="Status"
           allowClear
@@ -235,7 +263,7 @@ export default function OrderManagement() {
           options={Object.entries(OrderStatus).map(([key, value]) => {
             return {
               label: key,
-              value: value
+              value: value,
             }
           })}
         />
@@ -244,16 +272,20 @@ export default function OrderManagement() {
           onChange={(e) => {
             setCreatedByMe(e.target.checked)
           }}
-        >Created by me</Checkbox>
+        >
+          Created by me
+        </Checkbox>
         <Checkbox
           value={processByMe}
           onChange={(e) => {
             setProcessByMe(e.target.checked)
           }}
-        >Processed by me</Checkbox>
+        >
+          Processed by me
+        </Checkbox>
       </div>
       <Table
-        className='cursor-pointer'
+        className="cursor-pointer"
         bordered
         loading={isLoading}
         columns={columns}
@@ -261,7 +293,7 @@ export default function OrderManagement() {
         dataSource={data?.rows.map((item: any, index: number) => {
           return {
             key: index,
-            ...item
+            ...item,
           }
         })}
         pagination={{
@@ -269,14 +301,14 @@ export default function OrderManagement() {
           total: data?.count,
         }}
         onChange={(pagination) => {
-          setCurrentPage(pagination.current || 1);
+          setCurrentPage(pagination.current || 1)
         }}
         onRow={(record) => ({
           onClick: () => router.push(`/orders/${record.id}`),
         })}
       />
       <Modal
-        title='Process order'
+        title="Process order"
         open={processModal}
         onOk={handleOKProcess}
         onCancel={() => setProcessModal(false)}
@@ -285,7 +317,7 @@ export default function OrderManagement() {
         <p>Confirm to process this order ?</p>
       </Modal>
       <Modal
-        title='Complete order'
+        title="Complete order"
         open={completeModal}
         onOk={handleOKComplete}
         onCancel={() => setCompleteModal(false)}
@@ -294,13 +326,13 @@ export default function OrderManagement() {
         <p>Confirm to complete this order ?</p>
       </Modal>
       <Modal
-        title={<p className='text-red-700'>Cancel order</p>}
+        title={<p className="text-red-700">Cancel order</p>}
         open={cancelModal}
         onOk={handleCancelOKComplete}
         onCancel={() => setCancelModal(false)}
         confirmLoading={isLoadingBtn}
       >
-        <p className='text-red-600'>Confirm to cancel this order ?</p>
+        <p className="text-red-600">Confirm to cancel this order ?</p>
       </Modal>
     </div>
   )

@@ -1,11 +1,11 @@
 export enum PaymentMethod {
-    VNPAY = 'vn_pay',
-    CASH = 'cash'
+  VNPAY = 'vn_pay',
+  CASH = 'cash',
 }
 
 export enum PaymentStatus {
-    PENDING = 'PENDING',
-    COMPLETED = 'COMPLETED',
-    FAILED = 'FAILED',
-    REFUNDED = 'REFUNDED'
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
 }

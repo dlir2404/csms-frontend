@@ -1,3 +1,25 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "eslint:recommended", "prettier"],
+  "plugins": ["prettier", "unused-imports"],
+  "rules": {
+    "prettier/prettier": "error",
+    "no-unused-vars": "off",
+    "no-case-declarations": "off",
+    "no-console": "warn",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  }
 }

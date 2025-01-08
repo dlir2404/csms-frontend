@@ -1,22 +1,22 @@
-import { IProduct } from "./product";
-import { IUser } from "./user";
+import { IProduct } from './product'
+import { IUser } from './user'
 
 export enum OrderStatus {
-    CREATED = 'created',
-    PROCESSING = 'processing',
-    COMPLETED = 'completed',
-    CANCELED = 'canceled'
+  CREATED = 'created',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  CANCELED = 'canceled',
 }
 
 export interface IOder {
-    id: number;
-    totalPrice: number;
-    note?: string;
-    status: OrderStatus;
-    createdAt: string;
-    updatedAt: string;
-    products: IProduct[];
-    createdBy: IUser;
-    processBy: IUser;
-    payment: any
+  id: number
+  totalPrice: number
+  note?: string
+  status: OrderStatus
+  createdAt: string
+  updatedAt: string
+  products: IProduct[]
+  createdBy: IUser
+  processBy: IUser
+  payment: any
 }

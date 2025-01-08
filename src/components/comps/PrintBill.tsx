@@ -1,16 +1,16 @@
 'use client'
-import React from 'react';
-import { Button } from 'antd';
-import { PrinterOutlined } from '@ant-design/icons';
-import { IOder } from '@/shared/types/order';
+import React from 'react'
+import { Button } from 'antd'
+import { PrinterOutlined } from '@ant-design/icons'
+import { IOder } from '@/shared/types/order'
 
-const PrintBill = ({ order, discount }: { order: IOder, discount?: number }) => {
-    const handlePrint = () => {
-        // Create a new window for the bill
-        const printWindow = window.open('', '_blank');
+const PrintBill = ({ order, discount }: { order: IOder; discount?: number }) => {
+  const handlePrint = () => {
+    // Create a new window for the bill
+    const printWindow = window.open('', '_blank')
 
-        // Generate bill HTML
-        const billHTML = `
+    // Generate bill HTML
+    const billHTML = `
         <!DOCTYPE html>
         <html>
             <head>
@@ -142,7 +142,9 @@ const PrintBill = ({ order, discount }: { order: IOder, discount?: number }) => 
                     </table>
 
                     <div class="items">
-                        ${order.products.map((item, index) => `
+                        ${order.products
+                          .map(
+                            (item, index) => `
                             <div class="product-row">
                                 <span>${index + 1}</span>
                                 <span>${item.name}</span>
@@ -151,7 +153,9 @@ const PrintBill = ({ order, discount }: { order: IOder, discount?: number }) => 
                                 <span class="text-right">${((item?.quantity || 0) * item.price).toLocaleString()}</span>
                                 ${item.note ? `<div class="product-option">- ${item.note}</div>` : ''}
                             </div>
-                        `).join('')}
+                        `
+                          )
+                          .join('')}
                     </div>
                 </div>
 
@@ -172,12 +176,16 @@ const PrintBill = ({ order, discount }: { order: IOder, discount?: number }) => 
                         <span>Tổng tiền:</span>
                         <span>${(order.totalPrice * 1.1 - (discount || 0)).toLocaleString()}đ</span>
                     </div>
-                    ${order.payment ? `
+                    ${
+                      order.payment
+                        ? `
                         <div class="total-row">
                             <span>+ Thanh toán (${order.payment.paymentMethod})</span>
                             <span>${order.totalPrice.toLocaleString()}đ</span>
                         </div>
-                    ` : ''}
+                    `
+                        : ''
+                    }
                 </div>
 
                 <div class="store-info">
@@ -189,33 +197,29 @@ const PrintBill = ({ order, discount }: { order: IOder, discount?: number }) => 
                 </div>
             </body>
         </html>
-        `;
+        `
 
-        if (printWindow != null) {
-            // Write the bill content to the new window
-            printWindow.document.write(billHTML);
+    if (printWindow != null) {
+      // Write the bill content to the new window
+      printWindow.document.write(billHTML)
 
-            // Wait for content to load then print
-            printWindow.document.close();
-            printWindow.onload = function () {
-                printWindow.print();
-                printWindow.onafterprint = function () {
-                    printWindow.close();
-                };
-            };
+      // Wait for content to load then print
+      printWindow.document.close()
+      printWindow.onload = function () {
+        printWindow.print()
+        printWindow.onafterprint = function () {
+          printWindow.close()
         }
-    };
+      }
+    }
+  }
 
-    return (
-        <Button
-            onClick={handlePrint}
-            size='large'
-            className="flex items-center gap-2"
-        >
-            <PrinterOutlined className='w-4 h-4' />
-            Print Bill
-        </Button>
-    );
-};
+  return (
+    <Button onClick={handlePrint} size="large" className="flex items-center gap-2">
+      <PrinterOutlined className="w-4 h-4" />
+      Print Bill
+    </Button>
+  )
+}
 
-export default PrintBill;
+export default PrintBill
